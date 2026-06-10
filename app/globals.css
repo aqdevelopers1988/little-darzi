@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-darzi-green: #1e5a4d;
+  --color-thread-gold: #d99a2b;
+  --color-warm-cream: #fff6e7;
+  --color-soft-mint: #ddeee7;
+  --color-festive-terracotta: #b85c38;
+  --color-charcoal-ink: #263238;
+  --font-sans: Montserrat, ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", Georgia, serif;
+  --radius-xl: 1.25rem;
+}
+
+:root {
+  --background: #fff6e7;
+  --foreground: #263238;
+  --card: #ffffff;
+  --card-foreground: #263238;
+  --primary: #1e5a4d;
+  --primary-foreground: #fff6e7;
+  --secondary: #ddeee7;
+  --secondary-foreground: #1e5a4d;
+  --accent: #d99a2b;
+  --accent-foreground: #263238;
+  --muted: #f7ead6;
+  --muted-foreground: #5b666b;
+  --border: #ead9bd;
+  --ring: #d99a2b;
+}
+
+* { border-color: var(--border); }
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(221, 238, 231, 0.95), transparent 32rem),
+    linear-gradient(180deg, #fffaf0 0%, var(--background) 48%, #ffffff 100%);
+  color: var(--foreground);
+}
+
+.darzi-container { @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8; }
+.stitch-border { background-image: repeating-linear-gradient(90deg, #d99a2b 0 18px, transparent 18px 32px); height: 3px; }
+.thread-arc { border-top: 4px solid #d99a2b; border-radius: 999px 999px 0 0; }

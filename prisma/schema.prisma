@@ -1,0 +1,264 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum Gender {
+  BOY
+  GIRL
+  UNISEX
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  MEASUREMENT_CONFIRMED
+  IN_STITCHING
+  QUALITY_CHECK
+  READY_TO_SHIP
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentProvider {
+  COD
+  CARD
+  WALLET
+}
+
+enum PaymentStatus {
+  PENDING
+  PENDING_ON_DELIVERY
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model UserProfile {
+  id          String        @id @default(uuid())
+  supabaseId  String        @unique
+  email       String        @unique
+  fullName    String?
+  phone       String?
+  role        Role          @default(CUSTOMER)
+  kids        KidProfile[]
+  orders      Order[]
+  wishlist    WishlistItem[]
+  cartItems   CartItem[]
+  subscribers NewsletterSubscriber[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  imageUrl    String?
+  parentId    String?
+  parent      Category? @relation("CategoryTree", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryTree")
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id              String             @id @default(uuid())
+  name            String
+  slug            String             @unique
+  description     String
+  price           Int
+  compareAtPrice  Int?
+  sku             String?            @unique
+  fabric          String
+  gender          Gender
+  isPublished     Boolean            @default(false)
+  isBestSeller    Boolean            @default(false)
+  isExportLeftover Boolean           @default(false)
+  categoryId      String
+  category        Category           @relation(fields: [categoryId], references: [id])
+  images          ProductImage[]
+  variants        ProductVariant[]
+  wishlistItems   WishlistItem[]
+  cartItems       CartItem[]
+  orderItems      OrderItem[]
+  tryPreviews     TryOutfitPreview[]
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+}
+
+model ProductImage {
+  id        String  @id @default(uuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String?
+  sortOrder Int     @default(0)
+}
+
+model ProductVariant {
+  id        String  @id @default(uuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  size      String
+  color     String
+  ageGroup  String
+  stock     Int     @default(0)
+  price     Int?
+}
+
+model KidProfile {
+  id          String        @id @default(uuid())
+  userId      String
+  user        UserProfile   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  gender      Gender
+  ageGroup    String
+  birthDate   DateTime?
+  measurements Measurement[]
+  orders      Order[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Measurement {
+  id            String     @id @default(uuid())
+  kidProfileId  String
+  kidProfile    KidProfile @relation(fields: [kidProfileId], references: [id], onDelete: Cascade)
+  heightCm      Decimal?
+  chestCm       Decimal?
+  waistCm       Decimal?
+  hipCm         Decimal?
+  shoulderCm    Decimal?
+  sleeveCm      Decimal?
+  trouserLengthCm Decimal?
+  notes         String?
+  createdAt     DateTime   @default(now())
+}
+
+model WishlistItem {
+  id        String      @id @default(uuid())
+  userId    String
+  user      UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+
+  @@unique([userId, productId])
+}
+
+model CartItem {
+  id        String      @id @default(uuid())
+  userId    String
+  user      UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int         @default(1)
+  size      String?
+  color     String?
+  notes     String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model Order {
+  id              String          @id @default(uuid())
+  orderNumber     String          @unique
+  userId          String
+  user            UserProfile     @relation(fields: [userId], references: [id])
+  kidProfileId    String?
+  kidProfile      KidProfile?     @relation(fields: [kidProfileId], references: [id])
+  status          OrderStatus     @default(PENDING)
+  paymentProvider PaymentProvider @default(COD)
+  paymentStatus   PaymentStatus   @default(PENDING_ON_DELIVERY)
+  subtotal        Int
+  shipping        Int             @default(0)
+  total           Int
+  customerName    String
+  phone           String
+  address         String
+  city            String
+  items           OrderItem[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  name      String
+  quantity  Int
+  unitPrice Int
+  size      String?
+  color     String?
+}
+
+model TryOutfitModel {
+  id        String             @id @default(uuid())
+  name      String
+  gender    Gender
+  ageGroup  String
+  imageUrl  String
+  isActive  Boolean            @default(true)
+  previews  TryOutfitPreview[]
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+}
+
+model TryOutfitPreview {
+  id        String         @id @default(uuid())
+  productId String
+  product   Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  modelId   String
+  model     TryOutfitModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  gender    Gender
+  ageGroup  String
+  imageUrl  String
+  createdAt DateTime       @default(now())
+
+  @@unique([productId, modelId, ageGroup, gender])
+}
+
+model BlogPost {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  excerpt     String?
+  content     String
+  coverImage  String?
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Page {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  content     String
+  isPublished Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+}
+
+model NewsletterSubscriber {
+  id        String       @id @default(uuid())
+  email     String       @unique
+  userId    String?
+  user      UserProfile? @relation(fields: [userId], references: [id])
+  createdAt DateTime     @default(now())
+}
