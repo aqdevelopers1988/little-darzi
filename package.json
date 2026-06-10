@@ -1,0 +1,41 @@
+{
+  "name": "little-darzi",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "prisma:generate": "prisma generate",
+    "prisma:format": "prisma format",
+    "seed": "tsx prisma/seed.ts",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.0",
+    "@radix-ui/react-slot": "latest",
+    "@supabase/ssr": "latest",
+    "@supabase/supabase-js": "latest",
+    "class-variance-authority": "latest",
+    "clsx": "latest",
+    "lucide-react": "latest",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "tailwind-merge": "latest"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "eslint": "latest",
+    "eslint-config-next": "latest",
+    "prisma": "6.19.0",
+    "tailwindcss": "latest",
+    "tsx": "latest",
+    "typescript": "latest"
+  }
+}
